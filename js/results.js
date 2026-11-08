@@ -1,5 +1,5 @@
-import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js';
-import { subscribeResponses, DEMO } from './data.js';
+import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=4';
+import { subscribeResponses, DEMO } from './data.js?v=4';
 
 const dash = document.getElementById('dash');
 const filtersEl = document.getElementById('filters');

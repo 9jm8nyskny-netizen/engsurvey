@@ -1,5 +1,5 @@
-import { SECTIONS, RATING_SCALE, SETTINGS } from './schema.js';
-import { saveResponse, DEMO } from './data.js';
+import { SECTIONS, RATING_SCALE, SETTINGS } from './schema.js?v=4';
+import { saveResponse, DEMO } from './data.js?v=4';
 
 const app = document.getElementById('app');
 const progress = document.getElementById('progress');
