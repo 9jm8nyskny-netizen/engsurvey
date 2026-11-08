@@ -1,6 +1,6 @@
 // طبقة البيانات: Firestore عند ربط Firebase، وإلا وضع تجريبي على الجهاز
-import { firebaseConfig } from './firebase-config.js?v=8';
-import { ALL_Q } from './schema.js?v=8';
+import { firebaseConfig, ADMIN_EMAILS } from './firebase-config.js?v=9';
+import { ALL_Q } from './schema.js?v=9';
 
 export const DEMO = !firebaseConfig?.apiKey || /PASTE|YOUR_/i.test(firebaseConfig.apiKey);
 export const COLLECTION = 'responses';
@@ -16,7 +16,7 @@ async function fb() {
     import(SDK + 'firebase-firestore.js'),
   ]);
   const app = initializeApp(firebaseConfig);
-  ctx = { db: fs.getFirestore(app), fs };
+  ctx = { app, db: fs.getFirestore(app), fs };
   return ctx;
 }
 
@@ -91,4 +91,49 @@ function sample() {
     out.push(r);
   }
   return (_sample = out);
+}
+
+/* ---------- admin: Google sign-in + delete ---------- */
+let authCtx = null;
+async function fa() {
+  if (authCtx) return authCtx;
+  const { app } = await fb();
+  const A = await import(SDK + 'firebase-auth.js');
+  authCtx = { A, auth: A.getAuth(app) };
+  return authCtx;
+}
+export const isAdminEmail = email => !!email && ADMIN_EMAILS.map(e => e.toLowerCase()).includes(String(email).toLowerCase());
+
+export async function onAdminChange(cb) {
+  if (DEMO) { cb({ email: 'demo', demo: true }); return; }
+  const { A, auth } = await fa();
+  A.onAuthStateChanged(auth, u => cb(u ? { email: u.email, admin: isAdminEmail(u.email) && u.emailVerified } : null));
+}
+export async function adminSignIn() {
+  const { A, auth } = await fa();
+  const provider = new A.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  try { await A.signInWithPopup(auth, provider); }
+  catch (e) {
+    if (e?.code === 'auth/popup-blocked') return A.signInWithRedirect(auth, provider);
+    throw e;
+  }
+}
+export async function adminSignOut() {
+  const { A, auth } = await fa();
+  await A.signOut(auth);
+}
+export async function deleteResponses(ids) {
+  if (DEMO) {
+    const keep = readLocal().filter(r => !ids.includes(r.id));
+    try { localStorage.setItem(LS_KEY, JSON.stringify(keep)); } catch {}
+    window.dispatchEvent(new StorageEvent('storage', { key: LS_KEY }));
+    return;
+  }
+  const { db, fs } = await fb();
+  for (let i = 0; i < ids.length; i += 400) {
+    const batch = fs.writeBatch(db);
+    ids.slice(i, i + 400).forEach(id => batch.delete(fs.doc(db, COLLECTION, id)));
+    await batch.commit();
+  }
 }

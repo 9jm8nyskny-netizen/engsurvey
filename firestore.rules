@@ -22,7 +22,12 @@ service cloud.firestore {
       // لوحة التجميع تقرأ الردود (البيانات مجهولة الهوية)
       allow read: if true;
 
-      allow update, delete: if false;
+      // الحذف: فقط للمسؤول بعد الدخول بحساب Google من صفحة التجميع
+      allow delete: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['ramadanazzan857@gmail.com'];
+
+      allow update: if false;
     }
   }
 }

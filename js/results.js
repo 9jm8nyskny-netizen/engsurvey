@@ -1,5 +1,5 @@
-import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=8';
-import { subscribeResponses, DEMO } from './data.js?v=8';
+import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=9';
+import { subscribeResponses, DEMO, onAdminChange, adminSignIn, adminSignOut, deleteResponses } from './data.js?v=9';
 
 const dash = document.getElementById('dash');
 const filtersEl = document.getElementById('filters');
@@ -9,6 +9,9 @@ const FILTER_QS = ['q15', 'q16', 'q17', 'q1'];
 const surveyUrl = new URL('./', location.href).href;
 
 let all = [];
+let admin = null;           // { email, admin }
+const selected = new Set();
+let showAll = false;
 const filters = Object.fromEntries(FILTER_QS.map(k => [k, '']));
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -251,8 +254,121 @@ function render() {
 
     <h2 class="sec-title">د. عن المشاركين <span class="en">About you</span></h2>
     <div class="grid">${['q15', 'q16', 'q17'].map(id => barsPanel(rows, Q[id])).join('')}${commentsPanel(rows)}</div>
+
+    <h2 class="sec-title">سجل الردود <span class="en">All responses</span></h2>
+    <div class="grid">${recordsPanel(rows)}</div>
   `;
 }
+
+
+/* ---------------- records table + admin delete ---------------- */
+function avgRating(r) {
+  const v = Object.values(r.q9 || {}).filter(x => typeof x === 'number');
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
+function recordsPanel(rows) {
+  const can = !!admin?.admin || DEMO;
+  const deletable = id => !DEMO || String(id).startsWith('local-');
+  const LIMIT = 30;
+  const list = showAll ? rows : rows.slice(0, LIMIT);
+  for (const id of [...selected]) if (!rows.some(r => r.id === id)) selected.delete(id);
+  const head = can
+    ? `<div class="rec-bar">
+         <span>${selected.size ? `تم تحديد <b>${selected.size}</b>` : 'حدّد الردود اللي تبي تحذفها'}</span>
+         <button class="btn-del" data-act="del-selected" ${selected.size ? '' : 'disabled'}>حذف المحدد</button>
+       </div>`
+    : `<div class="rec-bar muted">للحذف: اضغط <b>دخول المسؤول</b> أعلى الصفحة وادخل بحسابك.</div>`;
+  return `
+  <div class="panel span-all">
+    <h3>كل الردود</h3>
+    <div class="meta">${rows.length} رد · الأحدث أولاً</div>
+    ${head}
+    <div class="rec-wrap"><table class="rec">
+      <thead><tr>
+        ${can ? `<th class="ck"><input type="checkbox" data-act="sel-all" aria-label="تحديد الكل" ${list.length && list.filter(r => deletable(r.id)).every(r => selected.has(r.id)) ? 'checked' : ''}></th>` : ''}
+        <th>التاريخ</th><th>العمر</th><th>الجنس</th><th>المكان الآن</th><th>الإحساس الحراري</th><th>متوسط التقييم</th><th>ملاحظة</th>
+        ${can ? '<th></th>' : ''}
+      </tr></thead>
+      <tbody>
+      ${list.map(r => {
+        const ar = avgRating(r);
+        const ok = deletable(r.id);
+        return `<tr class="${selected.has(r.id) ? 'sel' : ''}">
+          ${can ? `<td class="ck">${ok ? `<input type="checkbox" data-sel="${esc(r.id)}" ${selected.has(r.id) ? 'checked' : ''} aria-label="تحديد">` : ''}</td>` : ''}
+          <td class="nowrap">${new Date(r.createdAt).toLocaleString('ar-SA-u-nu-latn', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</td>
+          <td>${esc(optLabel('q15', r.q15))}</td>
+          <td>${esc(optLabel('q16', r.q16))}</td>
+          <td>${esc(optLabel('q12', r.q12))}</td>
+          <td class="num">${typeof r.q11 === 'number' ? (r.q11 > 0 ? '+' + r.q11 : r.q11 < 0 ? '−' + Math.abs(r.q11) : '0') : '—'}</td>
+          <td class="num"><span class="pill" style="background:${ratingColor(ar)}">${fmt1(ar)}</span></td>
+          <td class="note">${r.q18 ? esc(r.q18) : '<span class="muted">—</span>'}</td>
+          ${can ? `<td>${ok ? `<button class="btn-x" data-del="${esc(r.id)}" title="حذف هذا الرد" aria-label="حذف">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button>` : ''}</td>` : ''}
+        </tr>`;
+      }).join('') || `<tr><td colspan="9" class="empty">لا توجد ردود</td></tr>`}
+      </tbody>
+    </table></div>
+    ${!showAll && rows.length > LIMIT ? `<button class="more" data-act="show-all">عرض كل الردود (${rows.length})</button>` : ''}
+  </div>`;
+}
+
+async function doDelete(ids) {
+  if (!ids.length) return;
+  const msg = ids.length === 1 ? 'حذف هذا الرد نهائياً؟\nلا يمكن التراجع بعد الحذف.' : `حذف ${ids.length} ردود نهائياً؟\nلا يمكن التراجع بعد الحذف.`;
+  if (!confirm(msg)) return;
+  try {
+    await deleteResponses(ids);
+    ids.forEach(id => selected.delete(id));
+    toast(ids.length === 1 ? 'تم حذف الرد' : `تم حذف ${ids.length} ردود`);
+  } catch (e) {
+    console.error(e);
+    toast(e?.code === 'permission-denied' ? 'ما عندك صلاحية الحذف: تأكد من قواعد Firestore وحساب الدخول' : 'تعذّر الحذف، حاول مرة ثانية', true);
+  }
+}
+
+dash.addEventListener('click', e => {
+  const del = e.target.closest('[data-del]');
+  if (del) return doDelete([del.dataset.del]);
+  const act = e.target.closest('[data-act]')?.dataset.act;
+  if (act === 'del-selected') doDelete([...selected]);
+  if (act === 'show-all') { showAll = true; render(); }
+});
+dash.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.sel) { t.checked ? selected.add(t.dataset.sel) : selected.delete(t.dataset.sel); render(); }
+  else if (t.dataset.act === 'sel-all') {
+    const vis = (showAll ? filtered() : filtered().slice(0, 30)).filter(r => !DEMO || String(r.id).startsWith('local-'));
+    vis.forEach(r => (t.checked ? selected.add(r.id) : selected.delete(r.id)));
+    render();
+  }
+});
+
+const adminBtn = document.getElementById('adminBtn');
+function paintAdmin() {
+  if (DEMO) { adminBtn.hidden = true; return; }
+  if (admin?.admin) { adminBtn.textContent = 'خروج المسؤول'; adminBtn.title = admin.email; adminBtn.classList.add('on'); }
+  else { adminBtn.textContent = 'دخول المسؤول'; adminBtn.title = ''; adminBtn.classList.remove('on'); }
+}
+adminBtn.onclick = async () => {
+  try {
+    if (admin) { await adminSignOut(); toast('تم تسجيل الخروج'); return; }
+    await adminSignIn();
+  } catch (e) {
+    console.error(e);
+    const m = {
+      'auth/unauthorized-domain': 'أضف نطاق الموقع في Firebase ← Authentication ← Settings ← Authorized domains',
+      'auth/operation-not-allowed': 'فعّل دخول Google في Firebase ← Authentication ← Sign-in method',
+      'auth/popup-closed-by-user': 'تم إغلاق نافذة الدخول',
+    }[e?.code] || 'تعذّر تسجيل الدخول';
+    toast(m, true);
+  }
+};
+onAdminChange(u => {
+  admin = u;
+  if (u && !u.admin && !u.demo) toast('هذا الحساب ما عنده صلاحية الحذف', true);
+  paintAdmin();
+  if (all.length) render();
+}).catch(e => { console.error(e); adminBtn.hidden = true; });
 
 /* ---------------- CSV export (Excel / SPSS friendly) ---------------- */
 function exportCSV() {
@@ -314,7 +430,7 @@ function qrCanvas(text, size) {
 async function buildPoster() {
   const F = '"IBM Plex Sans Arabic", system-ui, sans-serif';
   try { await Promise.all(['400', '600', '700'].map(w => document.fonts.load(`${w} 40px "IBM Plex Sans Arabic"`))); } catch {}
-  const photo = await loadImage(new URL('img/obhur.jpg?v=8', location.href).href).catch(() => null);
+  const photo = await loadImage(new URL('img/obhur.jpg?v=9', location.href).href).catch(() => null);
   const W = 2000, H = 1250;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d');

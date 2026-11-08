@@ -7,12 +7,12 @@
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex">
 <title>تجميع الاستبيان · واجهة أبحر</title>
-<link rel="preload" as="image" href="img/obhur.jpg?v=8">
+<link rel="preload" as="image" href="img/obhur.jpg?v=9">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230c5a62%27/%3E%3Cpath d=%27M4 20c4-4 8 4 12 0s8 4 12 0v8H4z%27 fill=%27%23f6f0e6%27/%3E%3Ccircle cx=%2722%27 cy=%2711%27 r=%275%27 fill=%27%23e2773a%27/%3E%3C/svg%3E">
-<link rel="stylesheet" href="css/style.css?v=8">
+<link rel="stylesheet" href="css/style.css?v=9">
 <style>
   .wrap { max-width: 1180px; }
   .hero-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; }
@@ -26,6 +26,27 @@
     display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
   }
   .tbtn2:hover { background: var(--sea-soft); }
+  .tbtn2.admin { background: var(--sea); color: #fff; border-color: var(--sea); }
+  .tbtn2.admin.on { background: #fff; color: var(--danger); border-color: #f0c4bc; }
+  .rec-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--sand); border-radius: 12px; padding: 8px 12px; margin-bottom: 10px; font-size: 14px; }
+  .rec-bar.muted { color: var(--muted); }
+  .btn-del { background: var(--danger); color: #fff; border: 0; border-radius: 10px; padding: 8px 16px; font-weight: 700; cursor: pointer; }
+  .btn-del[disabled] { opacity: .35; cursor: default; }
+  .rec-wrap { overflow: auto; max-height: 560px; border-radius: 12px; border: 1px solid var(--line); }
+  table.rec { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.rec th { position: sticky; top: 0; background: #f3eee4; text-align: right; font-weight: 600; color: var(--muted); font-size: 12.5px; padding: 10px; white-space: nowrap; z-index: 1; }
+  table.rec td { padding: 9px 10px; border-top: 1px solid var(--line); vertical-align: middle; background: #fff; }
+  table.rec tr.sel td { background: #fff1ee; }
+  table.rec .ck { width: 36px; text-align: center; }
+  table.rec input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--danger); cursor: pointer; }
+  table.rec .num { text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.rec .nowrap { white-space: nowrap; }
+  table.rec .note { max-width: 280px; min-width: 160px; }
+  table.rec .muted { color: var(--muted); }
+  .pill { display: inline-block; min-width: 42px; color: #fff; font-weight: 700; border-radius: 8px; padding: 1px 8px; }
+  .btn-x { background: none; border: 1px solid transparent; color: var(--danger); border-radius: 8px; padding: 6px; cursor: pointer; display: grid; place-items: center; }
+  .btn-x:hover { background: #fdecea; border-color: #f0c4bc; }
+  .more { display: block; margin: 12px auto 0; background: none; border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 18px; color: var(--sea); font-weight: 600; cursor: pointer; }
 
   .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0 16px; position: relative; z-index: 2;
     background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px; }
@@ -118,6 +139,7 @@
         <button class="tbtn2" id="copyLink">نسخ رابط الاستبيان</button>
         <button class="tbtn2" id="qrBtn">رمز QR</button>
         <button class="tbtn2" id="csvBtn">تصدير Excel (CSV)</button>
+        <button class="tbtn2 admin" id="adminBtn">دخول المسؤول</button>
       </div>
     </div>
   </div>
@@ -144,6 +166,6 @@
 <div id="toast" class="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-<script type="module" src="js/results.js?v=8"></script>
+<script type="module" src="js/results.js?v=9"></script>
 </body>
 </html>
