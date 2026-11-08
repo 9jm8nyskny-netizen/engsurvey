@@ -1,12 +1,12 @@
-import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=7';
-import { subscribeResponses, DEMO } from './data.js?v=7';
+import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=8';
+import { subscribeResponses, DEMO } from './data.js?v=8';
 
 const dash = document.getElementById('dash');
 const filtersEl = document.getElementById('filters');
 const RCOL = ['var(--r1)', 'var(--r2)', 'var(--r3)', 'var(--r4)', 'var(--r5)'];
 const TCOL = ['#2f6fb0', '#5c9bd1', '#9cc6e4', '#c9c2ad', '#f2b880', '#e2773a', '#c0392b'];
 const FILTER_QS = ['q15', 'q16', 'q17', 'q1'];
-const surveyUrl = new URL('index.html', location.href).href;
+const surveyUrl = new URL('./', location.href).href;
 
 let all = [];
 const filters = Object.fromEntries(FILTER_QS.map(k => [k, '']));
@@ -285,24 +285,151 @@ document.getElementById('copyLink').onclick = async () => {
 document.getElementById('csvBtn').onclick = exportCSV;
 
 const modal = document.getElementById('qrModal');
-document.getElementById('qrBtn').onclick = () => {
+let posterCanvas = null;
+
+function loadImage(src) {
+  return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+}
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function wrapLines(ctx, text, maxW) {
+  const words = text.split(' '); const lines = []; let line = '';
+  for (const w of words) {
+    const t = line ? line + ' ' + w : w;
+    if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+function qrCanvas(text, size) {
+  const holder = document.createElement('div');
+  new window.QRCode(holder, { text, width: size, height: size, colorDark: '#0a3f45', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.Q });
+  return holder.querySelector('canvas');
+}
+
+// بطاقة QR احترافية: صورة الواجهة + تفاصيل الاستبيان + الرمز
+async function buildPoster() {
+  const F = '"IBM Plex Sans Arabic", system-ui, sans-serif';
+  try { await Promise.all(['400', '600', '700'].map(w => document.fonts.load(`${w} 40px "IBM Plex Sans Arabic"`))); } catch {}
+  const photo = await loadImage(new URL('img/obhur.jpg?v=8', location.href).href).catch(() => null);
+  const W = 2000, H = 1250;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  // background photo (cover) + light veil
+  ctx.fillStyle = '#cfe6ef'; ctx.fillRect(0, 0, W, H);
+  if (photo) {
+    const s = Math.max(W / photo.width, H / photo.height);
+    const pw = photo.width * s, ph = photo.height * s;
+    ctx.drawImage(photo, (W - pw) / 2, (H - ph) * 0.45, pw, ph);
+  }
+  let g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, 'rgba(246,240,230,0.10)'); g.addColorStop(1, 'rgba(246,240,230,0.55)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  // ---- details panel (right) ----
+  const px = 960, py = 110, pw = W - px - 90, ph = H - 220;
+  ctx.save(); ctx.shadowColor = 'rgba(10,63,69,0.18)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 18;
+  rr(ctx, px, py, pw, ph, 44); ctx.fillStyle = 'rgba(255,255,255,0.90)'; ctx.fill(); ctx.restore();
+
+  const R = px + pw - 70, maxW = pw - 140;
+  ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+  let y = py + 110;
+
+  // badge
+  ctx.font = `600 34px ${F}`;
+  const badge = 'MSAU 611 · جامعة عفت';
+  const bw = ctx.measureText(badge).width + 56;
+  rr(ctx, R - bw, y - 46, bw, 66, 33); ctx.fillStyle = '#e3f1f1'; ctx.fill();
+  ctx.fillStyle = '#0c5a62'; ctx.fillText(badge, R - 28, y);
+  y += 120;
+
+  // title
+  ctx.font = `700 86px ${F}`; ctx.fillStyle = '#0a3f45';
+  for (const ln of wrapLines(ctx, 'استبيان زوار واجهة أبحر الجديدة', maxW)) { ctx.fillText(ln, R, y); y += 108; }
+  y -= 30;
+  ctx.direction = 'ltr'; ctx.font = `500 38px ${F}`; ctx.fillStyle = '#4a6264';
+  ctx.fillText('New Obhur Waterfront Visitor Survey', R, y);
+  ctx.direction = 'rtl';
+  y += 56;
+
+  // accent line
+  ctx.fillStyle = '#e2773a'; rr(ctx, R - 120, y, 120, 8, 4); ctx.fill();
+  y += 86;
+
+  // description
+  ctx.font = `400 42px ${F}`; ctx.fillStyle = '#172a2c';
+  const desc = 'شاركنا رأيك في الظل والمقاعد والممرات والخدمات، لنفهم تجربة الزوار ونقترح تحسينات للواجهة.';
+  for (const ln of wrapLines(ctx, desc, maxW)) { ctx.fillText(ln, R, y); y += 68; }
+  y += 40;
+
+  // info chips
+  ctx.font = `600 36px ${F}`;
+  const chips = ['3–4 دقائق', 'مجهول الهوية', 'اختياري', '18 سنة فأكثر'];
+  let cx = R;
+  for (const ch of chips) {
+    const w = ctx.measureText(ch).width + 56;
+    if (R - (cx - w) > maxW) { cx = R; y += 92; }
+    rr(ctx, cx - w, y - 50, w, 74, 37); ctx.fillStyle = '#e3f1f1'; ctx.fill();
+    ctx.fillStyle = '#0c5a62'; ctx.fillText(ch, cx - 28, y);
+    cx -= w + 18;
+  }
+
+  // location footer
+  ctx.font = `500 34px ${F}`; ctx.fillStyle = '#5d6f71';
+  ctx.fillText('واجهة أبحر البحرية · جدة', R, py + ph - 64);
+
+  // ---- QR card (left) ----
+  const qx = 90, qy = py, qw = 790, qh = ph;
+  ctx.save(); ctx.shadowColor = 'rgba(10,63,69,0.22)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 18;
+  rr(ctx, qx, qy, qw, qh, 44); ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.restore();
+  // header strip
+  ctx.save(); rr(ctx, qx, qy, qw, qh, 44); ctx.clip();
+  g = ctx.createLinearGradient(qx, 0, qx + qw, 0); g.addColorStop(0, '#0a4a51'); g.addColorStop(1, '#13808a');
+  ctx.fillStyle = g; ctx.fillRect(qx, qy, qw, 140); ctx.restore();
+  ctx.textAlign = 'center'; ctx.direction = 'rtl';
+  ctx.font = `700 50px ${F}`; ctx.fillStyle = '#ffffff';
+  ctx.fillText('امسح الرمز للمشاركة', qx + qw / 2, qy + 90);
+
+  const qs = 580, qrx = qx + (qw - qs) / 2, qry = qy + 200;
+  const q = qrCanvas(surveyUrl, qs);
+  rr(ctx, qrx - 26, qry - 26, qs + 52, qs + 52, 28); ctx.strokeStyle = '#d7e9e9'; ctx.lineWidth = 4; ctx.stroke();
+  ctx.imageSmoothingEnabled = false; ctx.drawImage(q, qrx, qry, qs, qs); ctx.imageSmoothingEnabled = true;
+
+  ctx.direction = 'ltr'; ctx.font = `500 34px ${F}`; ctx.fillStyle = '#4a6264';
+  ctx.fillText('Scan to take part', qx + qw / 2, qry + qs + 104);
+  ctx.font = `400 26px ${F}`; ctx.fillStyle = '#7b8c8e';
+  ctx.fillText(surveyUrl.replace(/^https?:\/\//, '').replace(/\/$/, ''), qx + qw / 2, qry + qs + 158);
+  return c;
+}
+
+document.getElementById('qrBtn').onclick = async () => {
   const box = document.getElementById('qrBox');
-  box.innerHTML = '';
-  document.getElementById('qrUrl').textContent = surveyUrl;
-  if (window.QRCode) new window.QRCode(box, { text: surveyUrl, width: 480, height: 480, correctLevel: window.QRCode.CorrectLevel.M });
-  else box.textContent = 'تعذّر تحميل مولّد QR';
   modal.classList.add('open');
+  if (!window.QRCode) { box.innerHTML = '<p>تعذّر تحميل مولّد QR، تأكد من الاتصال</p>'; return; }
+  box.innerHTML = '<p class="qr-loading">جارٍ تجهيز البطاقة…</p>';
+  try {
+    posterCanvas = await buildPoster();
+    const img = new Image(); img.alt = 'بطاقة QR لاستبيان واجهة أبحر'; img.src = posterCanvas.toDataURL('image/png');
+    box.innerHTML = ''; box.appendChild(img);
+  } catch (e) { console.error(e); box.innerHTML = '<p>تعذّر تجهيز البطاقة</p>'; }
 };
 document.getElementById('qrClose').onclick = () => modal.classList.remove('open');
 modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('open'); });
 document.getElementById('qrDl').onclick = () => {
-  const c = document.querySelector('#qrBox canvas');
-  if (!c) return;
+  if (!posterCanvas) return;
   const a = document.createElement('a');
-  a.href = c.toDataURL('image/png');
-  a.download = 'obhur-survey-qr.png';
+  a.href = posterCanvas.toDataURL('image/png');
+  a.download = 'obhur-survey-qr-card.png';
   a.click();
+};
+document.getElementById('qrCopy').onclick = async () => {
+  try { await navigator.clipboard.writeText(surveyUrl); toast('تم نسخ رابط الاستبيان'); }
+  catch { prompt('انسخ الرابط:', surveyUrl); }
 };
 
 /* ---------------- start ---------------- */
