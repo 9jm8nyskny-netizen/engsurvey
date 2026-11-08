@@ -54,7 +54,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .hero.photo {
   background:
     linear-gradient(180deg, rgba(5,38,42,.10) 0%, rgba(5,38,42,.28) 42%, rgba(6,52,57,.82) 82%, rgba(6,52,57,.92) 100%),
-    url("../img/obhur.jpg?v=6") center 38% / cover no-repeat,
+    url("../img/obhur.jpg?v=7") center 38% / cover no-repeat,
     #0c5a62;
   min-height: clamp(320px, 52vh, 460px);
   display: flex; align-items: flex-end;
@@ -71,7 +71,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .hero.photo.compact { min-height: 0; padding: 40px 16px 64px; background-position: 0 0, center 45%, 0 0;
   background-image:
     linear-gradient(180deg, rgba(5,38,42,.55) 0%, rgba(6,52,57,.88) 100%),
-    url("../img/obhur.jpg?v=6");
+    url("../img/obhur.jpg?v=7");
 }
 .hero-loc { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: rgba(255,255,255,.85); margin-top: 10px; }
 .hero svg.waves { position: absolute; bottom: -1px; left: 0; width: 100%; height: 46px; }
@@ -219,39 +219,55 @@ textarea:focus { outline: none; border-color: var(--sea); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-/* ---------- full-width photo background, light fade ---------- */
-.hero2 {
-  position: relative; overflow: hidden; background: #cfe6ef;
-  min-height: clamp(420px, 68vh, 640px);
-  display: flex; align-items: flex-end;
-  padding: 24px 16px 30px;
+/* ---------- whole-page photo background (fixed), light veil ---------- */
+html { background: var(--sand); }
+body { background: transparent; position: relative; min-height: 100vh; }
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -2;
+  background: #cfe6ef url("../img/obhur.jpg?v=7") center 45% / cover no-repeat;
 }
-.hero2-photo { position: absolute; inset: 0; margin: 0; z-index: 0; }
-.hero2-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 52%; }
-.hero2::after {
-  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background: linear-gradient(180deg,
-    rgba(246,240,230,0) 0%, rgba(246,240,230,0) 34%,
-    rgba(246,240,230,.62) 60%, rgba(246,240,230,.93) 80%, var(--sand) 100%);
+    rgba(246,240,230,0) 0%, rgba(246,240,230,.10) 28%,
+    rgba(246,240,230,.48) 55%, rgba(246,240,230,.66) 100%);
 }
-.hero2 { isolation: isolate; }
-.hero2-inner { position: static; width: 100%; max-width: 720px; margin: 0 auto; }
-.hero2-text { position: relative; z-index: 2; }
-.hero2-text .badge {
-  background: rgba(255,255,255,.78); color: var(--sea); border: 1px solid rgba(255,255,255,.9);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+.hero2 {
+  position: relative; min-height: clamp(300px, 50vh, 500px);
+  display: flex; align-items: flex-end; padding: 24px 16px 22px;
 }
-.hero2-text h1 {
-  margin: 10px 0 4px; font-size: clamp(28px, 6.6vw, 46px); line-height: 1.22; font-weight: 700; color: #0a3f45;
-  text-shadow: 0 1px 14px rgba(255,255,255,.75);
+.hero2-inner { width: 100%; max-width: 688px; margin: 0 auto; }
+.hero2-text {
+  display: inline-block; max-width: 100%;
+  background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.85);
+  backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 20px; padding: 16px 20px 14px;
+  box-shadow: 0 10px 30px rgba(10,63,69,.12);
 }
-.hero2-text .en { display: block; font-size: 15px; text-align: right; color: #3f5658; }
-.hero2 .hero-loc { color: #3f5658; }
-@media (min-width: 860px) {
-  .hero2 { min-height: clamp(460px, 74vh, 700px); padding-bottom: 40px; }
+.hero2-text .badge { background: var(--sea-soft); color: var(--sea); border: 1px solid #c4e1e1; }
+.hero2-text h1 { margin: 8px 0 2px; font-size: clamp(25px, 6vw, 42px); line-height: 1.22; font-weight: 700; color: #0a3f45; }
+.hero2-text .en { display: block; font-size: 14.5px; text-align: right; color: #3f5658; }
+.hero2 .hero-loc { color: #3f5658; margin-top: 6px; }
+
+/* glassy cards over the photo */
+.card, .panel, .kpi, .filters {
+  background: rgba(255,255,255,.9) !important;
+  backdrop-filter: blur(16px) saturate(1.15); -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  border: 1px solid rgba(255,255,255,.9);
 }
-/* results page: shorter band */
-.hero2.compact { min-height: clamp(300px, 44vh, 420px); }
-.hero2.compact .hero2-inner { max-width: 1180px; }
-.hero2.compact .hero2-photo img { object-position: center 48%; }
-.hero2.compact h1 { font-size: clamp(26px, 5vw, 38px); }
+.card.missing { border-color: var(--danger); }
+.section-head {
+  display: inline-block; background: rgba(255,255,255,.78); border-radius: 14px; padding: 6px 14px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); margin-inline: 0;
+}
+.sec-title {
+  width: fit-content; background: rgba(255,255,255,.8); border-radius: 12px; padding: 4px 14px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.progress { background: rgba(246,240,230,.82); }
+
+/* results page: shorter header */
+.hero2.compact { min-height: clamp(220px, 34vh, 330px); }
+.hero2.compact .hero2-inner { max-width: 1148px; }
+.hero2.compact h1 { font-size: clamp(24px, 4.6vw, 36px); }
+.state { background: rgba(255,255,255,.85); border-radius: var(--radius); }
