@@ -1,6 +1,6 @@
 // طبقة البيانات: Firestore عند ربط Firebase، وإلا وضع تجريبي على الجهاز
-import { firebaseConfig, ADMIN_EMAILS } from './firebase-config.js?v=9';
-import { ALL_Q } from './schema.js?v=9';
+import { firebaseConfig, ADMIN_EMAILS } from './firebase-config.js?v=10';
+import { ALL_Q } from './schema.js?v=10';
 
 export const DEMO = !firebaseConfig?.apiKey || /PASTE|YOUR_/i.test(firebaseConfig.apiKey);
 export const COLLECTION = 'responses';

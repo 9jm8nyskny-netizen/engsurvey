@@ -1,5 +1,5 @@
-import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=9';
-import { subscribeResponses, DEMO, onAdminChange, adminSignIn, adminSignOut, deleteResponses } from './data.js?v=9';
+import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=10';
+import { subscribeResponses, DEMO, onAdminChange, adminSignIn, adminSignOut, deleteResponses } from './data.js?v=10';
 
 const dash = document.getElementById('dash');
 const filtersEl = document.getElementById('filters');
@@ -358,8 +358,10 @@ adminBtn.onclick = async () => {
     const m = {
       'auth/unauthorized-domain': 'أضف نطاق الموقع في Firebase ← Authentication ← Settings ← Authorized domains',
       'auth/operation-not-allowed': 'فعّل دخول Google في Firebase ← Authentication ← Sign-in method',
+      'auth/configuration-not-found': 'فعّل Authentication ودخول Google في Firebase أولاً',
       'auth/popup-closed-by-user': 'تم إغلاق نافذة الدخول',
-    }[e?.code] || 'تعذّر تسجيل الدخول';
+      'auth/cancelled-popup-request': 'تم إغلاق نافذة الدخول',
+    }[e?.code] || `تعذّر تسجيل الدخول (${e?.code || 'خطأ غير معروف'})`;
     toast(m, true);
   }
 };
@@ -430,7 +432,7 @@ function qrCanvas(text, size) {
 async function buildPoster() {
   const F = '"IBM Plex Sans Arabic", system-ui, sans-serif';
   try { await Promise.all(['400', '600', '700'].map(w => document.fonts.load(`${w} 40px "IBM Plex Sans Arabic"`))); } catch {}
-  const photo = await loadImage(new URL('img/obhur.jpg?v=9', location.href).href).catch(() => null);
+  const photo = await loadImage(new URL('img/obhur.jpg?v=10', location.href).href).catch(() => null);
   const W = 2000, H = 1250;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d');
