@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ردود الاستبيان: أي شخص يقدر يضيف رد، ولا أحد يقدر يعدّل أو يحذف من الموقع
+    match /responses/{id} {
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          'consent','lang','createdAt',
+          'q1','q2','q3','q4','q5','q6','q7','q8','q9','q10',
+          'q11','q12','q13','q14','q15','q16','q17','q18'
+        ])
+        && request.resource.data.consent == true
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.q9 is map
+        && request.resource.data.q11 is int
+        && request.resource.data.q11 >= -3 && request.resource.data.q11 <= 3
+        && (!('q10' in request.resource.data) || request.resource.data.q10.size() <= 3)
+        && (!('q18' in request.resource.data)
+            || (request.resource.data.q18 is string && request.resource.data.q18.size() <= 1000));
+
+      // لوحة التجميع تقرأ الردود (البيانات مجهولة الهوية)
+      allow read: if true;
+
+      allow update, delete: if false;
+    }
+  }
+}

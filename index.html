@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c5a62">
+<title>استبيان زوار واجهة أبحر</title>
+<meta name="description" content="استبيان أكاديمي لزوار واجهة أبحر الجديدة — MSAU 611، جامعة عفت">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230c5a62%27/%3E%3Cpath d=%27M4 20c4-4 8 4 12 0s8 4 12 0v8H4z%27 fill=%27%23f6f0e6%27/%3E%3Ccircle cx=%2722%27 cy=%2711%27 r=%275%27 fill=%27%23e2773a%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="sun" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <span class="badge">MSAU 611 · جامعة عفت</span>
+    <h1>استبيان زوار واجهة أبحر الجديدة</h1>
+    <span class="en">New Obhur Waterfront Visitor Survey</span>
+  </div>
+  <svg class="waves" viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 24 C 150 4, 300 44, 450 24 S 750 4, 900 24 S 1100 44, 1200 22 L1200 46 L0 46 Z"></path>
+  </svg>
+</header>
+
+<div class="progress" id="progress" hidden>
+  <div class="progress-inner">
+    <div class="track"><div class="bar" id="bar"></div></div>
+    <span class="step-label" id="stepLabel"></span>
+  </div>
+</div>
+
+<main id="app" class="wrap" aria-live="polite"></main>
+<div id="demoBanner" class="demo" style="margin:0 16px 24px" hidden>وضع تجريبي: Firebase غير مربوط بعد، والإجابات تُحفظ على هذا الجهاز فقط.</div>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script type="module" src="js/survey.js"></script>
+</body>
+</html>

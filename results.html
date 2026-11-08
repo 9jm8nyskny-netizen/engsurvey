@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c5a62">
+<meta name="robots" content="noindex">
+<title>تجميع الاستبيان · واجهة أبحر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230c5a62%27/%3E%3Cpath d=%27M4 20c4-4 8 4 12 0s8 4 12 0v8H4z%27 fill=%27%23f6f0e6%27/%3E%3Ccircle cx=%2722%27 cy=%2711%27 r=%275%27 fill=%27%23e2773a%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .wrap { max-width: 1180px; }
+  .hero { padding-bottom: 56px; }
+  .hero-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+  .live i { width: 8px; height: 8px; border-radius: 50%; background: #7ef0b0; box-shadow: 0 0 0 0 rgba(126,240,176,.7); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(126,240,176,0); } 100% { box-shadow: 0 0 0 0 rgba(126,240,176,0); } }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tbtn2 {
+    background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.3);
+    border-radius: 10px; padding: 8px 14px; font-weight: 600; font-size: 14px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+  }
+  .tbtn2:hover { background: rgba(255,255,255,.24); }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: -28px 0 16px; position: relative; z-index: 2;
+    background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px; }
+  .filters label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; flex: 1 1 140px; }
+  .filters select { background: var(--sand); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 14px; }
+  .filters .reset { align-self: flex-end; background: none; border: 0; color: var(--sea); font-weight: 600; cursor: pointer; padding: 8px; }
+  .fnote { font-size: 13px; color: var(--sun); font-weight: 600; margin: -8px 4px 12px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .kpi { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; }
+  .kpi .k { font-size: 13px; color: var(--muted); }
+  .kpi .v { font-size: 30px; font-weight: 700; line-height: 1.2; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .kpi .s { font-size: 12.5px; color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+  .span-all { grid-column: 1 / -1; }
+  .panel { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .panel h3 { margin: 0; font-size: 16px; display: flex; gap: 8px; align-items: baseline; }
+  .panel h3 .qn { color: var(--sea); font-size: 13px; font-weight: 700; }
+  .panel .meta { font-size: 12px; color: var(--muted); margin: 2px 0 12px; }
+  .sec-title { margin: 26px 4px 10px; font-size: 19px; color: var(--sea); display: flex; gap: 10px; align-items: baseline; }
+
+  .row { display: grid; grid-template-columns: minmax(90px, 38%) 1fr auto; gap: 10px; align-items: center; padding: 5px 0; font-size: 14px; }
+  .row .lbl { line-height: 1.3; }
+  .row .bar { height: 14px; background: var(--sand-2); border-radius: 7px; overflow: hidden; }
+  .row .bar i { display: block; height: 100%; background: var(--sea-2); border-radius: 7px; transition: width .5s ease; }
+  .row.top .bar i { background: var(--sea); }
+  .row .num { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); min-width: 70px; text-align: end; }
+  .row .num b { color: var(--ink); }
+
+  .rrow { display: grid; grid-template-columns: minmax(120px, 30%) 1fr 54px; gap: 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .rrow:first-of-type { border-top: 0; }
+  .stack { display: flex; height: 18px; border-radius: 6px; overflow: hidden; background: var(--sand-2); direction: ltr; }
+  .stack span { height: 100%; transition: width .5s; }
+  .mean { font-weight: 700; text-align: center; border-radius: 8px; padding: 3px 0; color: #fff; font-variant-numeric: tabular-nums; }
+  .rrow .sub { font-size: 11.5px; color: var(--muted); }
+  .weak-tag { font-size: 11px; background: #fbe3dc; color: #a23a22; border-radius: 6px; padding: 1px 6px; margin-inline-start: 6px; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { .weak-tag { background: #4a2219; color: #f3b5a5; } }
+  .rlegend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .rlegend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-inline-end: 4px; vertical-align: -1px; }
+
+  .cols { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 150px; direction: ltr; margin-top: 8px; }
+  .col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 4px; }
+  .col i { width: 100%; border-radius: 6px 6px 2px 2px; min-height: 2px; transition: height .5s; }
+  .col .c { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .col-lbls { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; direction: ltr; font-size: 11px; text-align: center; color: var(--muted); margin-top: 4px; }
+
+  .div-row { display: grid; grid-template-columns: minmax(110px, 34%) 1fr 64px; gap: 10px; align-items: center; padding: 6px 0; font-size: 14px; }
+  .div-track { position: relative; height: 16px; background: var(--sand-2); border-radius: 8px; direction: ltr; }
+  .div-track::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; background: var(--muted); opacity: .5; }
+  .div-track i { position: absolute; top: 0; bottom: 0; border-radius: 8px; }
+  .div-axis { display: flex; justify-content: space-between; direction: ltr; font-size: 11px; color: var(--muted); margin: 4px 0 0; padding-inline: 0; }
+
+  .days { display: flex; align-items: flex-end; gap: 4px; height: 90px; direction: ltr; }
+  .days .d { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 3px; }
+  .days .d i { width: 100%; background: var(--sea-2); border-radius: 4px 4px 1px 1px; min-height: 2px; }
+  .days .d span { font-size: 10px; color: var(--muted); }
+  .days .d b { font-size: 11px; font-variant-numeric: tabular-nums; }
+
+  .comments { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow: auto; }
+  .cmt { background: var(--sand); border-radius: 12px; padding: 10px 12px; font-size: 14.5px; }
+  .cmt .m { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  .empty { color: var(--muted); font-size: 14px; padding: 16px 0; text-align: center; }
+
+  .modal { position: fixed; inset: 0; background: rgba(10,25,27,.55); display: none; align-items: center; justify-content: center; z-index: 40; padding: 16px; }
+  .modal.open { display: flex; }
+  .modal-box { background: var(--card); border-radius: 18px; padding: 22px; text-align: center; width: 100%; max-width: 360px; }
+  #qrBox { background: #fff; padding: 14px; border-radius: 12px; display: inline-block; margin: 12px 0; }
+  #qrBox img, #qrBox canvas { display: block; width: 240px; height: 240px; }
+  .url { font-size: 12px; color: var(--muted); direction: ltr; word-break: break-all; margin-bottom: 14px; }
+  .modal-actions { display: flex; gap: 8px; }
+  .modal-actions .btn { flex: 1; min-height: 44px; padding: 10px; font-size: 14px; }
+  .state { text-align: center; padding: 60px 16px; color: var(--muted); }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .rrow { grid-template-columns: 1fr 54px; }
+    .rrow .stackwrap { grid-column: 1 / -1; grid-row: 2; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="sun" aria-hidden="true"></div>
+  <div class="hero-inner" style="max-width:1180px">
+    <div class="hero-row">
+      <div>
+        <span class="badge" id="modeBadge"><span class="live"><i></i> مباشر</span></span>
+        <h1>تجميع استبيان واجهة أبحر</h1>
+        <span class="en">Obhur Waterfront Survey — Results</span>
+      </div>
+      <div class="tools">
+        <a class="tbtn2" href="index.html" target="_blank" rel="noopener">فتح الاستبيان ↗</a>
+        <button class="tbtn2" id="copyLink">نسخ رابط الاستبيان</button>
+        <button class="tbtn2" id="qrBtn">رمز QR</button>
+        <button class="tbtn2" id="csvBtn">تصدير Excel (CSV)</button>
+      </div>
+    </div>
+  </div>
+  <svg class="waves" viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 24 C 150 4, 300 44, 450 24 S 750 4, 900 24 S 1100 44, 1200 22 L1200 46 L0 46 Z"></path>
+  </svg>
+</header>
+
+<main class="wrap" id="main">
+  <div class="filters" id="filters"></div>
+  <div id="dash"><div class="state">جارٍ تحميل الردود…</div></div>
+</main>
+<div id="demoBanner" class="demo" style="margin:0 16px 24px" hidden>وضع تجريبي: Firebase غير مربوط بعد — تعرض الصفحة 48 رداً وهمياً للمعاينة + أي ردود أرسلتها من هذا الجهاز.</div>
+
+<div class="modal" id="qrModal" role="dialog" aria-modal="true" aria-label="رمز QR للاستبيان">
+  <div class="modal-box">
+    <h3 style="margin:0">امسح للمشاركة في الاستبيان</h3>
+    <div id="qrBox"></div>
+    <div class="url" id="qrUrl"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="qrDl">تحميل الصورة</button>
+      <button class="btn btn-ghost" id="qrClose">إغلاق</button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script type="module" src="js/results.js"></script>
+</body>
+</html>
