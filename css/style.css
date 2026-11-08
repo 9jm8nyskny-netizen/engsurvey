@@ -54,7 +54,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .hero.photo {
   background:
     linear-gradient(180deg, rgba(5,38,42,.10) 0%, rgba(5,38,42,.28) 42%, rgba(6,52,57,.82) 82%, rgba(6,52,57,.92) 100%),
-    url("../img/obhur.jpg?v=10") center 38% / cover no-repeat,
+    url("../img/obhur.jpg?v=11") center 38% / cover no-repeat,
     #0c5a62;
   min-height: clamp(320px, 52vh, 460px);
   display: flex; align-items: flex-end;
@@ -71,7 +71,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .hero.photo.compact { min-height: 0; padding: 40px 16px 64px; background-position: 0 0, center 45%, 0 0;
   background-image:
     linear-gradient(180deg, rgba(5,38,42,.55) 0%, rgba(6,52,57,.88) 100%),
-    url("../img/obhur.jpg?v=10");
+    url("../img/obhur.jpg?v=11");
 }
 .hero-loc { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: rgba(255,255,255,.85); margin-top: 10px; }
 .hero svg.waves { position: absolute; bottom: -1px; left: 0; width: 100%; height: 46px; }
@@ -224,7 +224,7 @@ html { background: var(--sand); }
 body { background: transparent; position: relative; min-height: 100vh; }
 body::before {
   content: ""; position: fixed; inset: 0; z-index: -2;
-  background: #cfe6ef url("../img/obhur.jpg?v=10") center 45% / cover no-repeat;
+  background: #cfe6ef url("../img/obhur.jpg?v=11") center 45% / cover no-repeat;
 }
 body::after {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;

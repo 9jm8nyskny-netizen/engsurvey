@@ -1,5 +1,5 @@
-import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=10';
-import { subscribeResponses, DEMO, onAdminChange, adminSignIn, adminSignOut, deleteResponses } from './data.js?v=10';
+import { SECTIONS, ALL_Q, Q, RATING_ITEMS, THERMAL, optLabel } from './schema.js?v=11';
+import { subscribeResponses, DEMO, onAdminChange, adminSignIn, adminSignOut, deleteResponses } from './data.js?v=11';
 
 const dash = document.getElementById('dash');
 const filtersEl = document.getElementById('filters');
@@ -12,6 +12,7 @@ let all = [];
 let admin = null;           // { email, admin }
 const selected = new Set();
 let showAll = false;
+let printing = false;
 const filters = Object.fromEntries(FILTER_QS.map(k => [k, '']));
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -267,7 +268,7 @@ function avgRating(r) {
   return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
 }
 function recordsPanel(rows) {
-  const can = !!admin?.admin || DEMO;
+  const can = (!!admin?.admin || DEMO) && !printing;
   const deletable = id => !DEMO || String(id).startsWith('local-');
   const LIMIT = 30;
   const list = showAll ? rows : rows.slice(0, LIMIT);
@@ -402,6 +403,20 @@ document.getElementById('copyLink').onclick = async () => {
 };
 document.getElementById('csvBtn').onclick = exportCSV;
 
+// طباعة / PDF: يعرض كل الردود في الجدول ثم يفتح نافذة الطباعة
+function printDashboard() {
+  const prev = showAll;
+  showAll = true; printing = true; render();
+  const fs = FILTER_QS.filter(k => filters[k]).map(k => `${Q[k].ar}: ${optLabel(k, filters[k])}`);
+  let ph = document.getElementById('printHead');
+  if (!ph) { ph = document.createElement('div'); ph.id = 'printHead'; ph.className = 'print-head'; document.querySelector('.hero2-text').appendChild(ph); }
+  ph.textContent = `تاريخ الطباعة: ${new Date().toLocaleString('ar-SA-u-nu-latn', { dateStyle: 'long', timeStyle: 'short' })} · ${filtered().length} رد` + (fs.length ? ` · الفلاتر: ${fs.join('، ')}` : '');
+  const done = () => { printing = false; showAll = prev; render(); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  setTimeout(() => window.print(), 300);
+}
+document.getElementById('printBtn').onclick = printDashboard;
+
 const modal = document.getElementById('qrModal');
 let posterCanvas = null;
 
@@ -432,7 +447,7 @@ function qrCanvas(text, size) {
 async function buildPoster() {
   const F = '"IBM Plex Sans Arabic", system-ui, sans-serif';
   try { await Promise.all(['400', '600', '700'].map(w => document.fonts.load(`${w} 40px "IBM Plex Sans Arabic"`))); } catch {}
-  const photo = await loadImage(new URL('img/obhur.jpg?v=10', location.href).href).catch(() => null);
+  const photo = await loadImage(new URL('img/obhur.jpg?v=11', location.href).href).catch(() => null);
   const W = 2000, H = 1250;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d');

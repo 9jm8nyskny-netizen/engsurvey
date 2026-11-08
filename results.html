@@ -7,12 +7,12 @@
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex">
 <title>تجميع الاستبيان · واجهة أبحر</title>
-<link rel="preload" as="image" href="img/obhur.jpg?v=10">
+<link rel="preload" as="image" href="img/obhur.jpg?v=11">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230c5a62%27/%3E%3Cpath d=%27M4 20c4-4 8 4 12 0s8 4 12 0v8H4z%27 fill=%27%23f6f0e6%27/%3E%3Ccircle cx=%2722%27 cy=%2711%27 r=%275%27 fill=%27%23e2773a%27/%3E%3C/svg%3E">
-<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/style.css?v=11">
 <style>
   .wrap { max-width: 1180px; }
   .hero-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; }
@@ -125,6 +125,42 @@
     .rrow { grid-template-columns: 1fr 54px; }
     .rrow .stackwrap { grid-column: 1 / -1; grid-row: 2; }
   }
+
+  /* ---------- print / PDF ---------- */
+  .print-head { display: none; }
+  @media print {
+    @page { size: A4 portrait; margin: 10mm; }
+    html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html { background: #f6f0e6 !important; }
+    body { background: transparent !important; }
+    body::before { position: absolute; height: 120mm; bottom: auto; background-position: center 45%; }
+    body::after { position: absolute; height: 120mm; bottom: auto;
+      background: linear-gradient(180deg, rgba(246,240,230,0) 0%, rgba(246,240,230,.35) 60%, #f6f0e6 100%); }
+    .tools, #adminBtn, .filters .reset, .demo, .toast, .modal, .rec-bar, .more,
+    table.rec .ck, table.rec td:last-child:has(.btn-x), table.rec th:last-child:empty { display: none !important; }
+    .hero2.compact { min-height: 0; padding: 6mm 0 4mm; }
+    .hero2-inner, .wrap { max-width: none !important; padding: 0 !important; }
+    .hero2-text { box-shadow: none; }
+    .card, .panel, .kpi, .filters, .hero2-text, .sec-title, .section-head {
+      backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+      background: rgba(255,255,255,.96) !important; box-shadow: 0 0 0 1px #e2d9c8 !important;
+    }
+    .filters { margin: 0 0 4mm; }
+    .filters select { appearance: none; -webkit-appearance: none; background: #f6f0e6; }
+    .kpis { grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+    .grid { grid-template-columns: 1fr 1fr; gap: 3mm; }
+    .grid .span-all { grid-column: 1 / -1; }
+    .panel, .kpi, .rrow, .cmt, tr { break-inside: avoid; page-break-inside: avoid; }
+    .sec-title { break-after: avoid; page-break-after: avoid; margin-top: 6mm; }
+    .rec-wrap, .comments { max-height: none !important; overflow: visible !important; }
+    table.rec th { position: static; }
+    table.rec { font-size: 10.5px; }
+    table.rec th, table.rec td { padding: 5px 6px; white-space: nowrap; }
+    table.rec .note { white-space: normal; min-width: 0; max-width: 200px; }
+    .hero2.compact { min-height: 70mm; align-items: flex-end; }
+    .print-head { display: block; font-size: 11px; color: #5d6f71; margin-top: 4px; }
+    .live i { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -139,6 +175,7 @@
         <button class="tbtn2" id="copyLink">نسخ رابط الاستبيان</button>
         <button class="tbtn2" id="qrBtn">رمز QR</button>
         <button class="tbtn2" id="csvBtn">تصدير Excel (CSV)</button>
+        <button class="tbtn2" id="printBtn">طباعة / PDF</button>
         <button class="tbtn2 admin" id="adminBtn">دخول المسؤول</button>
       </div>
     </div>
@@ -166,6 +203,6 @@
 <div id="toast" class="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-<script type="module" src="js/results.js?v=10"></script>
+<script type="module" src="js/results.js?v=11"></script>
 </body>
 </html>
