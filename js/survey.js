@@ -1,5 +1,5 @@
-import { SECTIONS, RATING_SCALE, SETTINGS } from './schema.js?v=4';
-import { saveResponse, DEMO } from './data.js?v=4';
+import { SECTIONS, RATING_SCALE, SETTINGS } from './schema.js?v=5';
+import { saveResponse, DEMO } from './data.js?v=5';
 
 const app = document.getElementById('app');
 const progress = document.getElementById('progress');
@@ -39,12 +39,12 @@ function render() {
   else if (step === 'done') app.innerHTML = doneHTML();
   else app.innerHTML = sectionHTML(SECTIONS[step - 1]);
 
-  window.scrollTo({ top: step === 0 ? 0 : document.querySelector('.hero').offsetHeight - 10, behavior: 'smooth' });
+  window.scrollTo({ top: step === 0 ? 0 : document.querySelector('.hero2').offsetHeight - 10, behavior: 'smooth' });
 }
 
 function introHTML() {
   return `
-  <div class="card intro" style="margin-top:-30px;position:relative">
+  <div class="card intro" style="margin-top:16px">
     <p>استبيان أكاديمي لمادة <b>MSAU 611</b> في جامعة عفت عن تجربة الزوار في واجهة أبحر الجديدة.</p>
     <p class="en" style="display:block">An academic survey for MSAU 611 at Effat University.</p>
     <div class="facts">
@@ -66,7 +66,7 @@ function introHTML() {
 
 function declinedHTML() {
   return `
-  <div class="card done" style="margin-top:-30px;position:relative">
+  <div class="card done" style="margin-top:16px">
     <h2>شكراً لوقتك</h2>
     <p class="en" style="display:block">Thank you for your time.</p>
     <p style="color:var(--muted)">انتهى الاستبيان. المشاركة متاحة فقط للبالغين الموافقين على المشاركة.</p>
@@ -76,7 +76,7 @@ function declinedHTML() {
 
 function doneHTML() {
   return `
-  <div class="card done" style="margin-top:-30px;position:relative">
+  <div class="card done" style="margin-top:16px">
     <div class="ico"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
     <h2>شكراً لمشاركتك</h2>
     <p class="en" style="display:block">Thank you for taking part.</p>
